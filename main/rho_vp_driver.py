@@ -10,11 +10,13 @@ def main():
     vp = data[:, 1]  # p-wave velocity data
 
     # plotting original data...
+    plt.figure(figsize=(10, 6))
     plt.grid()
-    plt.plot(rho, vp, 'ro', markersize=4)
-    plt.xlabel("Density [g/cm^3]")
-    plt.ylabel("P-Wave Velocity [m/s]")
-    plt.title("P-Wave Velocity as a Function of Density")
+    plt.plot(rho, vp, 'ro', markersize=6, alpha=0.6, label="Original Data")
+    plt.xlabel("Density [g/cm³]", fontsize=12)
+    plt.ylabel("P-Wave Velocity [m/s]", fontsize=12)
+    plt.title("P-Wave Velocity vs Density", fontsize=14)
+    plt.legend()
     plt.savefig('../figures/magnitude_vs_time.png', dpi=300)
     plt.show()
 
@@ -26,35 +28,38 @@ def main():
 
     log_n = Z @ a  # linearized vp values
 
-    # plotting...
+    # plotting fitted line...
+    plt.figure(figsize=(10, 6))
     plt.grid()
-    plt.plot(rho, log_n, 'b--', markersize=2, label="Fitted")  # density-x vs log(vp)-y
-    plt.plot(rho, y, 'ro', markersize=4, label="Log Data")
-    plt.xlabel("Density [g/cm^3]")
-    plt.ylabel("Log of P-Wave Velocity [m/s]")
+    plt.plot(rho, log_n, 'b--', markersize=2, label="Fitted Line")  # density-x vs log(vp)-y
+    plt.xlabel("Density [g/cm³]", fontsize=12)
+    plt.ylabel("log(P-Wave Velocity [m/s])", fontsize=12)
+    plt.title("Linear Regression: log(Vp) vs Density", fontsize=14)
     plt.legend()
-    plt.title("Linear Regression: log(Vp) versus Density")
     plt.savefig('../figures/linear_magnitude_vs_time.png', dpi=300)
     plt.show()
 
-    # now we fit the model in OG
-    log_V0, k = a
-    V0 = 10 ** log_V0  # undo the log to get actual V0
-    vp_fitted = V0 * rho ** k  # equation from midterm
+    # now we fit the model
+    log_v0, k = a
+    k = a[1]
+    v0 = 10 ** log_v0  # undo the log to get actual V0
 
-    print(f"V0 = {V0}")
-    print(f"k = {k}")
+    print(f"V0 = {v0}")
+    print(f"k = {k}") # like 1.0896
     print(f"R squared = {rsq}")
 
-    # plotting original data with model fit...
+    # plotting log-linear fit...
     plt.figure(figsize=(10, 6))
     plt.grid()
-    plt.plot(rho, vp_fitted, 'b--', markersize=2, label="Fitted Line")  # density-x vs log(vp)-y
-    plt.plot(rho, vp, 'ro', markersize=4, label="Original Data")
-    plt.xlabel("Density [g/cm^3]")
-    plt.ylabel("P-Wave Velocity [m/s]")
+    plt.plot(rho, log_n, 'b--', markersize=2, label="Fitted Line")  # density-x vs log(vp)-y
+    plt.plot(rho, y, 'ro', markersize=6, alpha=0.6, label="Log Data")
+    plt.xlabel("Density [g/cm³]", fontsize=12)
+    plt.ylabel("log(P-Wave Velocity [m/s])", fontsize=12)
+    plt.title(rf"Linear Regression of $V_p = {v0:.2f} \cdot e^{{\rho \times {k:.2f}}}$", fontsize=14)
+    plt.text(0.20, 0.60, f'$R^2$ = {rsq:.8f}', transform=plt.gca().transAxes,
+             fontsize=12, bbox=dict(facecolor='white'))
+    # transform is to place text relative to the axes, not data
     plt.legend()
-    plt.title("Best Fit Model")
     plt.savefig('../figures/best_fit.png', dpi=300)
     plt.show()
 
